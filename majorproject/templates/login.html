@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background: #0a0a0a;
+            overflow: hidden;
+            position: relative;
+            color: white;
+        }
+
+        .form-container {
+            z-index: 1;
+            background: rgba(20, 20, 20, 0.9);
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.8);
+            text-align: center;
+            max-width: 400px;
+            width: 100%;
+        }
+
+        h1 {
+            margin-bottom: 30px;
+            font-size: 2rem;
+        }
+
+        input {
+            width: 100%;
+            padding: 15px;
+            margin: 10px 0;
+            border: none;
+            border-radius: 30px;
+            background: #121212;
+            color: white;
+            font-size: 1rem;
+            outline: none;
+            transition: all 0.3s;
+        }
+
+        input:focus, input:hover {
+            background: #1f1f1f;
+            transform: scale(1.05);
+            box-shadow: 0 0 12px rgba(43, 140, 255, 0.8);
+        }
+
+        button {
+            width: 100%;
+            padding: 15px;
+            margin-top: 20px;
+            border: none;
+            border-radius: 30px;
+            background: linear-gradient(135deg, #2b8cff, #436cff);
+            color: white;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        button:hover {
+            background: linear-gradient(135deg, #436cff, #2b8cff);
+            transform: scale(1.05);
+        }
+
+        p a {
+            color: #2b8cff;
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+
+        p a:hover {
+            color: #436cff;
+        }
+
+        .animation-circle {
+            position: absolute;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(43, 140, 255, 0.8), rgba(67, 108, 255, 0.5));
+            animation: moveCircle 10s linear infinite;
+            pointer-events: none;
+            opacity: 0.7;
+        }
+
+        @keyframes moveCircle {
+            0% { transform: translateY(0) translateX(0) scale(1); }
+            50% { transform: translateY(-300px) translateX(300px) scale(1.2); }
+            100% { transform: translateY(0) translateX(0) scale(1); }
+        }
+
+        .circle1 { width: 400px; height: 400px; top: 10%; left: 20%; }
+        .circle2 { width: 300px; height: 300px; bottom: 20%; right: 15%; animation-delay: -5s; }
+
+        #error-message {
+            color: red;
+            font-size: 0.9rem;
+            margin-top: 5px;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="form-container">
+        <h1>Login</h1>
+        <form id="login-form" action="/login" method="POST">
+            <input type="email" name="email" placeholder="Email" required />
+            <input type="password" name="pwd" placeholder="Password" required />
+            <p id="error-message"></p>
+            <button type="submit" id="submit-btn">Login</button>
+        </form>
+        <p>Don't have an account? <a href="/sign_up">Sign up here</a></p>
+        <p><a href="/forgot">Forgot Password?</a></p>
+    </div>
+
+    <div class="animation-circle circle1"></div>
+    <div class="animation-circle circle2"></div>
+
+    <script>
+        document.getElementById("login-form").addEventListener("submit", async function(event) {
+            event.preventDefault();  
+
+            const submitBtn = document.getElementById("submit-btn");
+            submitBtn.disabled = true;
+            submitBtn.innerText = "Logging in...";
+
+            const formData = new FormData(this);
+            const response = await fetch("/login", {
+                method: "POST",
+                body: formData
+            });
+
+            const result = await response.text();
+            const errorMessage = document.getElementById("error-message");
+
+            if (result.includes("Invalid user or password!")) {
+                errorMessage.style.display = "block";  
+                errorMessage.innerText = "Invalid email or password. Try again.";
+                submitBtn.disabled = false;
+                submitBtn.innerText = "Login";
+            } else {
+                window.location.href = "/";  
+            }
+        });
+
+        window.onload = function() {
+            const flashMessage = sessionStorage.getItem("flashMessage");
+            if (flashMessage) {
+                const errorMessage = document.getElementById("error-message");
+                errorMessage.style.display = "block";
+                errorMessage.innerText = flashMessage;
+                sessionStorage.removeItem("flashMessage");
+            }
+        };
+    </script>
+</body>
+</html>

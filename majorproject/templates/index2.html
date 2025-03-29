@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stock Prediction - Tradex</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.2/css/all.min.css"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap');
+        
+        body {
+            margin: 0;
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(to bottom, #001f3f, #000000);
+            color: #E0E0E0;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Stock Chart Grid Background */
+        .grid-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-size: 50px 50px;
+            background-image: linear-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px),
+                              linear-gradient(90deg, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+            z-index: 0;
+        }
+
+        /* Stock Animation */
+        .stock-animation {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .stock-line {
+            position: absolute;
+            width: 2px;
+            height: 120px;
+            background: rgba(0, 255, 0, 0.8);
+            animation: moveStockLines 6s infinite linear;
+        }
+
+        .stock-line.red {
+            background: rgba(255, 0, 0, 0.8);
+        }
+
+        @keyframes moveStockLines {
+            0% {
+                transform: translateY(100vh);
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(-100vh);
+                opacity: 0.2;
+            }
+        }
+
+        /* Glowing Stock Tickers */
+        .stock-ticker {
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 24px;
+            font-weight: bold;
+            color: #00ff7f;
+            text-shadow: 0 0 10px rgba(0, 255, 127, 0.8);
+            animation: moveTicker 10s linear infinite;
+        }
+
+        @keyframes moveTicker {
+            0% {
+                top: -50px;
+                opacity: 0;
+            }
+            50% {
+                opacity: 1;
+            }
+            100% {
+                top: 100vh;
+                opacity: 0;
+            }
+        }
+
+        /* Navbar */
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(34, 34, 34, 0.9);
+            color: white;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.6);
+            backdrop-filter: blur(10px);
+            z-index: 10;
+        }
+
+        .logo {
+            font-size: 28px;
+            font-weight: bold;
+            color: #00B4D8;
+            text-shadow: 0 0 10px #00B4D8;
+        }
+
+        .menu {
+            display: flex;
+            gap: 20px;
+        }
+
+        .menu a {
+            text-decoration: none;
+            color: white;
+            font-size: 18px;
+            transition: 0.3s;
+        }
+
+        .menu a:hover {
+            color: #00B4D8;
+        }
+
+        .menu-toggle {
+            display: none;
+            font-size: 24px;
+            cursor: pointer;
+        }
+
+        /* Center Content */
+        .center {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 20px;
+            position: relative;
+            z-index: 2;
+        }
+
+        .title {
+            font-size: 44px;
+            margin-bottom: 15px;
+            color: #00B4D8;
+            text-shadow: 0 0 15px #00B4D8;
+            font-weight: bold;
+        }
+
+        .sub_title {
+            font-size: 22px;
+            margin-bottom: 30px;
+            color: #E0F7FA;
+        }
+
+        .search-box input {
+            padding: 10px;
+            font-size: 18px;
+            border: 2px solid #00B4D8;
+            border-radius: 5px;
+            outline: none;
+            background: #001f3f;
+            color: white;
+        }
+
+        .search-box button {
+            padding: 10px 15px;
+            font-size: 18px;
+            border: none;
+            background: #00B4D8;
+            color: white;
+            cursor: pointer;
+            border-radius: 5px;
+            transition: 0.3s;
+        }
+
+        .search-box button:hover {
+            background: #0092a5;
+        }
+
+        .login-message {
+            color: #E0F7FA;
+            font-size: 18px;
+            margin-top: 20px;
+        }
+
+        /* Result Box */
+        .result-box {
+            margin-top: 30px;
+            padding: 20px;
+            background-color: rgba(0, 0, 0, 0.7);
+            border-radius: 10px;
+            width: 80%;
+            color: #E0E0E0;
+        }
+
+        .result-box h2 {
+            color: #00B4D8;
+        }
+
+        .result-box .prediction {
+            margin-top: 20px;
+            font-size: 20px;
+            color: #00FF7F;
+        }
+
+        .result-box .buy {
+            background-color: green;
+        }
+
+        .result-box .sell {
+            background-color: red;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .menu {
+                display: none;
+                flex-direction: column;
+                position: absolute;
+                top: 60px;
+                right: 30px;
+                width: 200px;
+                background: rgba(34, 34, 34, 0.95);
+                padding: 10px;
+                border-radius: 5px;
+            }
+
+            .menu a {
+                padding: 10px;
+                display: block;
+            }
+
+            .menu-toggle {
+                display: block;
+            }
+
+            .menu.active {
+                display: flex;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="grid-overlay"></div> <!-- Grid Effect -->
+    <div class="stock-animation"></div>
+    <nav>
+        <div class="logo">StockSight</div>
+        <div class="menu-toggle" onclick="toggleMenu()">
+            <i class="fa fa-bars"></i>
+        </div>
+        <div class="menu">
+            {% if session['email'] %}
+                <a href="/">Home</a>
+                <a href="/about">About</a>
+                <a href="/profile">Setting</a>
+                <a href="/logout">Log out</a>
+            {% else %}
+                <a href="/">Home</a>
+                <a href="/about">About</a>
+                <a href="/login">Login</a>
+                <a href="/sign_up">Register</a>
+            {% endif %}
+        </div>
+    </nav>
+
+    <div class="center">
+        <div class="title">Explore Stocks Your Way</div>
+        <div class="sub_title">Enter valid stock symbols for predictions</div>
+        <div class="search-box">
+            {% if session['email'] %}
+                <form method="POST" action="{{ url_for('index') }}">
+                    <input type="text" name="stock_symbol" placeholder="Enter Stock Symbol" required>
+                    <button type="submit">Analyze</button>
+                </form>
+            {%else%}
+                <p>Please login to my website</p>  
+            {% endif %} 
+        </div>
+
+        {% if stock_symbol %}
+        <div class="result-box">
+            <h2>Prediction for {{ stock_symbol }}</h2>
+            <div class="prediction {% if recommendation == 'Buy' %} buy {% else %} sell {% endif %}">
+                Recommendation: {{ recommendation }}
+            </div>
+            <!-- Add more details like charts or other information here -->
+        </div>
+        {% endif %}
+        
+        <div class="login-message" id="loginMessage"></div>
+    </div>
+
+    <script>
+        function toggleMenu() {
+            document.querySelector('.menu').classList.toggle('active');
+        }
+
+        document.addEventListener("DOMContentLoaded", function() {
+            const stockAnimation = document.querySelector(".stock-animation");
+
+            for (let i = 0; i < 25; i++) {
+                let stockLine = document.createElement("div");
+                stockLine.classList.add("stock-line");
+                if (Math.random() > 0.5) stockLine.classList.add("red");
+                stockLine.style.left = `${Math.random() * 100}vw`;
+                stockLine.style.animationDuration = `${2 + Math.random() * 3}s`;
+                stockAnimation.appendChild(stockLine);
+            }
+
+        });
+    </script>
+</body>
+</html>

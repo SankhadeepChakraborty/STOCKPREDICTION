@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tradex</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.2/css/all.min.css"/>
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f9;
+            color: #333;
+        }
+
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: left;
+            padding: 15px 20px;
+            background-color: #222;
+            color: white;
+            position: relative;
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: bold;
+        }
+
+        .menu {
+            display: flex;
+            gap: 20px;
+        }
+
+        .menu a {
+            text-decoration: none;
+            color: white;
+            margin: 0 10px;
+            transition: color 0.3s;
+        }
+
+        .menu a:hover {
+            color: #00b4d8;
+        }
+
+        .menu-toggle {
+            display: none;
+            font-size: 24px;
+            cursor: pointer;
+        }
+
+        @media (max-width: 768px) {
+            .menu {
+                display: none;
+                flex-direction: column;
+                background-color: #333;
+                position: absolute;
+                top: 60px;
+                right: 20px;
+                width: 200px;
+                box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.5);
+                padding: 15px;
+                border-radius: 8px;
+            }
+
+            .menu.active {
+                display: flex;
+            }
+
+            .menu a {
+                margin: 10px 0;
+                color: white;
+            }
+
+            .menu-toggle {
+                display: block;
+                color: white;
+            }
+        }
+    </style>
+</head>
+<body>
+
+      
+    <nav>
+        <div class="logo">StockSight</div>
+        <div class="menu-toggle" onclick="toggleMenu()">
+            <i class="fa fa-bars"></i>
+        </div>
+        <div class="menu">
+            {% if session['email'] %}
+                <a href="/">Home</a>
+                <a href="/about">About</a>
+                <a href="/profile">Setting</a>
+                <a href="/logout">Log out</a>
+            {% else %}
+                <a href="/">Home</a>
+                <a href="/about">About</a>
+                <a href="/login">Login</a>
+                <a href="/sign_up">Register</a>
+            {% endif %}
+        </div>
+    </nav>
+
+    <h1>Welcome to Tradex</h1>
+
+    <script>
+        function toggleMenu() {
+            const menu = document.querySelector('.menu');
+            menu.classList.toggle('active');
+        }
+    </script>
+</body>
+</html>
